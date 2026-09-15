@@ -12,3 +12,4 @@
 Thumbs.db
 CMakeCache.txt
 CMakeFiles/
+.local-full/
