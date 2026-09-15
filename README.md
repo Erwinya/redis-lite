@@ -2,45 +2,25 @@
 
 Educational in-memory key-value server in **C++17**.
 
-Supports a small text command set inspired by Redis:
+Supports a small text command set inspired by Redis (`PING`, `SET`, `GET`, `DEL`, `EXISTS`, `QUIT`).
 
-- `PING`
-- `SET key value [EX seconds]`
-- `GET key`
-- `DEL key`
-- `EXISTS key`
-- `QUIT`
+## Status
 
-Single-threaded accept loop. Useful for learning sockets, TTLs, and protocol design — not a Redis replacement.
+In-memory `SET` / `GET` store is in place. TTL, TCP loop, remaining commands, and build scripts will land in follow-up commits.
 
-## Build
+## Library (so far)
 
-```bash
-make
+```cpp
+#include "store.hpp"
+
+redislite::Store store;
+store.set("foo", "bar");
+auto v = store.get("foo");  // "bar"
 ```
 
-Windows:
+## Requirements
 
-```bat
-build.bat
-```
-
-## Run
-
-```bash
-./redis-lite --port 6379
-```
-
-Example session (netcat / `Test-NetConnection` client / another TCP tool):
-
-```text
-PING
-SET foo bar EX 30
-GET foo
-EXISTS foo
-DEL foo
-QUIT
-```
+- C++17 compiler
 
 ## License
 
