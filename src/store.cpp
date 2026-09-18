@@ -27,4 +27,9 @@ std::optional<std::string> Store::get(const std::string &key) {
     return it->second.value;
 }
 
+bool Store::del(const std::string &key) {
+    purge_if_expired(key);
+    return entries_.erase(key) > 0;
+}
+
 }  // namespace redislite
