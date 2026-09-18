@@ -32,4 +32,9 @@ bool Store::del(const std::string &key) {
     return entries_.erase(key) > 0;
 }
 
+bool Store::exists(const std::string &key) {
+    purge_if_expired(key);
+    return entries_.find(key) != entries_.end();
+}
+
 }  // namespace redislite

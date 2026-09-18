@@ -16,6 +16,9 @@ public:
     /// Removes the key if present (after TTL purge). Returns true if a key was deleted.
     bool del(const std::string &key);
 
+    /// Returns true if the key exists and has not expired.
+    bool exists(const std::string &key);
+
     std::size_t size() const { return entries_.size(); }
 
 private:
