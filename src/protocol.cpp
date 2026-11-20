@@ -24,6 +24,19 @@ std::vector<std::string> split_ws(const std::string &line) {
     return parts;
 }
 
+bool parse_positive_seconds(const std::string &text, long long &out) {
+    if (text.empty()) return false;
+    try {
+        size_t idx = 0;
+        long long value = std::stoll(text, &idx);
+        if (idx != text.size() || value <= 0) return false;
+        out = value;
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
 }  // namespace
 
 std::string handle_line(Store &store, const std::string &line) {
@@ -40,13 +53,12 @@ std::string handle_line(Store &store, const std::string &line) {
             return "+OK\n";
         }
         if (parts.size() == 5 && upper(parts[3]) == "EX") {
-            try {
-                auto ttl = std::chrono::seconds{std::stoll(parts[4])};
-                store.set(parts[1], parts[2], ttl);
-                return "+OK\n";
-            } catch (...) {
+            long long seconds = 0;
+            if (!parse_positive_seconds(parts[4], seconds)) {
                 return "-ERR invalid expire time in SET\n";
             }
+            store.set(parts[1], parts[2], std::chrono::seconds{seconds});
+            return "+OK\n";
         }
         return "-ERR wrong number of arguments for SET\n";
     }
@@ -66,6 +78,26 @@ std::string handle_line(Store &store, const std::string &line) {
     if (cmd == "EXISTS") {
         if (parts.size() != 2) return "-ERR wrong number of arguments for EXISTS\n";
         return ":" + std::to_string(store.exists(parts[1]) ? 1 : 0) + "\n";
+    }
+
+    if (cmd == "EXPIRE") {
+        if (parts.size() != 3) return "-ERR wrong number of arguments for EXPIRE\n";
+        long long seconds = 0;
+        if (!parse_positive_seconds(parts[2], seconds)) {
+            return "-ERR invalid expire time in EXPIRE\n";
+        }
+        return ":" + std::to_string(store.expire(parts[1], std::chrono::seconds{seconds}) ? 1 : 0) +
+               "\n";
+    }
+
+    if (cmd == "TTL") {
+        if (parts.size() != 2) return "-ERR wrong number of arguments for TTL\n";
+        return ":" + std::to_string(store.ttl(parts[1])) + "\n";
+    }
+
+    if (cmd == "PERSIST") {
+        if (parts.size() != 2) return "-ERR wrong number of arguments for PERSIST\n";
+        return ":" + std::to_string(store.persist(parts[1]) ? 1 : 0) + "\n";
     }
 
     return "-ERR unknown command\n";

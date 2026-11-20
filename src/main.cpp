@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
             port = std::atoi(argv[++i]);
         } else if (arg == "--help" || arg == "-h") {
             std::cout << "Usage: redis-lite [--port N]\n"
-                      << "Commands: PING GET SET DEL EXISTS QUIT\n";
+                      << "Commands: PING GET SET DEL EXISTS EXPIRE TTL PERSIST QUIT\n";
             return 0;
         }
     }
