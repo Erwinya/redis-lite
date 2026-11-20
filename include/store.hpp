@@ -19,6 +19,15 @@ public:
     /// Returns true if the key exists and has not expired.
     bool exists(const std::string &key);
 
+    /// Set TTL in seconds. Returns true if the key exists.
+    bool expire(const std::string &key, std::chrono::seconds ttl);
+
+    /// Remaining TTL seconds: -2 missing, -1 no expire, else >= 0.
+    long long ttl(const std::string &key);
+
+    /// Remove expiration. Returns true if the key exists.
+    bool persist(const std::string &key);
+
     std::size_t size() const { return entries_.size(); }
 
 private:

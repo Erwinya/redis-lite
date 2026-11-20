@@ -37,4 +37,32 @@ bool Store::exists(const std::string &key) {
     return entries_.find(key) != entries_.end();
 }
 
+bool Store::expire(const std::string &key, std::chrono::seconds ttl) {
+    purge_if_expired(key);
+    auto it = entries_.find(key);
+    if (it == entries_.end()) return false;
+    if (ttl.count() <= 0) return false;
+    it->second.expires = std::chrono::steady_clock::now() + ttl;
+    return true;
+}
+
+long long Store::ttl(const std::string &key) {
+    purge_if_expired(key);
+    auto it = entries_.find(key);
+    if (it == entries_.end()) return -2;
+    if (!it->second.expires) return -1;
+    auto remaining = std::chrono::duration_cast<std::chrono::seconds>(
+            *it->second.expires - std::chrono::steady_clock::now());
+    if (remaining.count() < 0) return -2;
+    return remaining.count();
+}
+
+bool Store::persist(const std::string &key) {
+    purge_if_expired(key);
+    auto it = entries_.find(key);
+    if (it == entries_.end()) return false;
+    it->second.expires.reset();
+    return true;
+}
+
 }  // namespace redislite
